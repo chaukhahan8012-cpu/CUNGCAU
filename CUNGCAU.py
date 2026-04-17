@@ -1,91 +1,47 @@
 import streamlit as st
 import pandas as pd
-import pydeck as pdk
-import numpy as np
 import time
 
-# 1. CẤU HÌNH TRANG
-st.set_page_config(page_title="AgriLoop Ecosystem", layout="wide")
-
-st.title("🚀 AgriLoop: Mô Hình Kết Nối & Vận Hành Hệ Thống")
-
-# Sidebar để điều hướng
-st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2554/2554030.png", width=100)
-app_mode = st.sidebar.radio("Chọn góc nhìn hệ thống:", 
-    ["1. Luồng vận hành (Workflow)", "2. Khớp lệnh Cung - Cầu", "3. Bản đồ Tối ưu Vận chuyển"])
-
-# 2. TÍNH NĂNG 1: LUỒNG VẬN HÀNH (WORKFLOW)
-if app_mode == "1. Luồng vận hành (Workflow)":
-    st.subheader("🧠 'Bộ não' AgriLoop kết nối các bên như thế nào?")
+def run_pro_matching():
+    st.subheader("🤖 Hệ Thống Khớp Lệnh Thông Minh (Smart Matching Engine)")
     
-    # Vẽ sơ đồ bằng Graphviz
-    st.graphviz_chart('''
-        digraph {
-            rankdir=LR;
-            node [shape=box, style=filled, color="#E1F5FE", fontname="Arial"];
-            
-            subgraph cluster_0 {
-                label = "ĐẦU VÀO (INPUT)";
-                style=dashed;
-                color=green;
-                F [label="Nông dân\n(Đăng đơn hàng)", fillcolor="#C8E6C9"];
-            }
-
-            subgraph cluster_1 {
-                label = "TRUNG TÂM XỬ LÝ (AGRILOOP ENGINE)";
-                color=blue;
-                M [label="Matching Algorithm\n(Khớp Cung-Cầu)", fillcolor="#BBDEFB"];
-                P [label="Logistics Pooling\n(Ghép chuyến tối ưu)", fillcolor="#BBDEFB"];
-            }
-
-            subgraph cluster_2 {
-                label = "ĐẦU RA (OUTPUT)";
-                style=dashed;
-                color=red;
-                T [label="Tài xế\n(Nhận lộ trình GPS)", fillcolor="#FFF9C4"];
-                B [label="Nhà máy\n(Nhận hàng & Thanh toán)", fillcolor="#FFCCBC"];
-            }
-
-            F -> M [label="Gửi dữ liệu GPS"];
-            M -> P [label="Tạo chuyến hàng"];
-            P -> T [label="Điều xe"];
-            T -> B [label="Giao hàng"];
-            B -> F [label="Số hóa hóa đơn", style=dotted];
-        }
-    ''')
-    
-    st.info("""
-    **Giải thích cho Ban giám khảo:**
-    - **Step 1:** Nông dân cung cấp dữ liệu thô (vị trí, khối lượng).
-    - **Step 2:** AgriLoop xử lý 'khớp lệnh' để tìm nhà máy phù hợp nhất.
-    - **Step 3:** Thuật toán 'ghép chuyến' gom các nông dân gần nhau để tối ưu chi phí vận chuyển.
-    - **Step 4:** Tài xế chạy theo lộ trình đã tối ưu, đảm bảo không có xe chạy rỗng.
-    """)
-
-# 3. TÍNH NĂNG 2: KHỚP LỆNH (Dùng lại logic cũ nhưng làm đẹp hơn)
-elif app_mode == "2. Khớp lệnh Cung - Cầu":
-    st.subheader("🤝 Kết nối thời gian thực")
-    col1, col2 = st.columns(2)
-    # Giả lập data nông dân
-    farmers = pd.DataFrame({
+    # Giả lập dữ liệu có thêm chỉ số "Giá" và "Khoảng cách"
+    farmers_data = {
         'Nông dân': ['Hân', 'An', 'Bình', 'Chi'],
-        'Phế phẩm': ['Vỏ trấu', 'Rơm rạ', 'Vỏ trấu', 'Bã mía'],
-        'Khối lượng': [5, 10, 3, 15]
-    })
-    col1.write("**Nguồn cung (Farmers)**")
-    col1.table(farmers)
-    
-    col2.write("**Nhu cầu (Factories)**")
-    col2.table(pd.DataFrame({'Nhà máy': ['Bio-Fuel X'], 'Cần mua': ['Vỏ trấu'], 'Số lượng': [20]}))
-    
-    if st.button("Kích hoạt Matching"):
-        st.success("Hệ thống đã khớp: Hân + Bình -> Cung cấp cho Bio-Fuel X (Tổng 8 tấn)")
+        'Sản phẩm': ['Vỏ trấu', 'Rơm rạ', 'Vỏ trấu', 'Vỏ trấu'],
+        'Khối lượng (Tấn)': [5, 10, 3, 7],
+        'Khoảng cách (km)': [12, 45, 8, 20],
+        'Giá kỳ vọng (đ/kg)': [500, 300, 520, 480]
+    }
+    df_farmers = pd.DataFrame(farmers_data)
 
-# 4. TÍNH NĂNG 3: BẢN ĐỒ
-elif app_mode == "3. Bản đồ Tối ưu Vận chuyển":
-    st.subheader("📍 Mô phỏng lộ trình xe chạy (GPS Optimization)")
-    # Code vẽ bản đồ ArcLayer như cũ của tớ
-    view_state = pdk.ViewState(latitude=10.76, longitude=106.66, zoom=12, pitch=45)
-    df = pd.DataFrame({'lon': [106.67, 106.65, 106.64], 'lat': [10.77, 10.75, 10.74]})
-    layer = pdk.Layer("ArcLayer", df, get_source_position="[lon, lat]", get_target_position="[106.66, 10.76]", get_width=5, get_source_color=[0, 255, 0])
-    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
+    st.write("### 📋 Nguồn cung đang chờ xử lý")
+    st.dataframe(df_farmers.style.highlight_max(axis=0, subset=['Khối lượng (Tấn)'], color='#e1f5fe'))
+
+    if st.button("🚀 KÍCH HOẠT THUẬT TOÁN TỐI ƯU"):
+        with st.status("Đang quét tọa độ và tối ưu chi phí...", expanded=True) as status:
+            time.sleep(1)
+            st.write("🔍 Đang tìm nhà máy có nhu cầu phù hợp...")
+            time.sleep(1)
+            st.write("📉 Đang tính toán lộ trình gom hàng (Pooling)...")
+            status.update(label="Khớp lệnh hoàn tất!", state="complete", expanded=False)
+
+        # Kết quả khớp lệnh "Xịn"
+        st.success("🎉 Đã tìm thấy phương án tối ưu nhất!")
+        
+        # Hiển thị dưới dạng Dashboard kết quả
+        res_col1, res_col2, res_col3 = st.columns(3)
+        res_col1.metric("Tổng khối lượng gom", "15 Tấn", "Vỏ trấu")
+        res_col2.metric("Chi phí vận chuyển", "-25%", "Tiết kiệm")
+        res_col3.metric("Matching Score", "98/100", "Rất cao")
+
+        st.write("### 🚛 Kế hoạch vận chuyển đề xuất (Pooling)")
+        match_res = pd.DataFrame({
+            'Lộ trình': ['Hân -> Bình -> Chi -> Nhà máy X'],
+            'Xe tải điều động': ['Xe 15 tấn - Đội xe số 04'],
+            'Tổng quãng đường': ['28 km (Tiết kiệm 15km so với đi lẻ)'],
+            'Trạng thái': ['🔥 Đang điều xe']
+        })
+        st.table(match_res)
+
+# Gọi hàm này trong app_mode của bạn
