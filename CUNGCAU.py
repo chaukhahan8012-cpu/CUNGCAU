@@ -48,8 +48,8 @@ elif app_mode == "2. Khớp lệnh Cung - Cầu Pro":
     with col1:
         st.write("**📦 Nguồn cung (Nông dân)**")
         farmers_df = pd.DataFrame({
-            'Nông dân': ['Hân', 'An', 'Bình', 'Chi'],
-            'Sản phẩm': ['Vỏ trấu', 'Rơm rạ', 'Vỏ trấu', 'Vỏ trấu'],
+            'Nông dân': ['Thúy', 'An', 'Bình', 'Chi'],
+            'Sản phẩm': ['Rơm rạ', 'Rơm rạ', 'Rơm rạ', 'Rơm rạ'],
             'Khối lượng (Tấn)': [5, 10, 3, 7]
         })
         st.table(farmers_df)
@@ -58,7 +58,7 @@ elif app_mode == "2. Khớp lệnh Cung - Cầu Pro":
         st.write("**🏭 Nhu cầu (Nhà máy)**")
         factory_df = pd.DataFrame({
             'Nhà máy': ['Bio-Fuel X'],
-            'Cần mua': ['Vỏ trấu'],
+            'Cần mua': ['Rơm rạ'],
             'Số lượng': [20]
         })
         st.table(factory_df)
@@ -66,14 +66,14 @@ elif app_mode == "2. Khớp lệnh Cung - Cầu Pro":
     if st.button("KÍCH HOẠT MATCHING"):
         with st.spinner('Đang tính toán phương án tối ưu...'):
             time.sleep(1)
-            st.success("🎉 Đã tìm thấy phương án tối ưu: Ghép 3 đơn hàng vỏ trấu!")
+            st.success("🎉 Đã tìm thấy phương án tối ưu: Ghép 3 đơn hàng rơm rạ!")
             
             m1, m2, m3 = st.columns(3)
-            m1.metric("Tổng gom", "15 Tấn", "Vỏ trấu")
+            m1.metric("Tổng gom", "15 Tấn", "Rơm rạ")
             m2.metric("Chi phí vận chuyển", "-25%", "Tiết kiệm")
             m3.metric("Matching Score", "98/100", "Tối ưu")
             
-            st.code("Lộ trình đề xuất: Farm Hân -> Farm Bình -> Farm Chi -> Nhà máy Bio-Fuel X", language="text")
+            st.code("Lộ trình đề xuất: Farm Thúy -> Farm Bình -> Farm Chi -> Nhà máy Bio-Fuel X", language="text")
 
 # --- TAB 3: BẢN ĐỒ ---
 elif app_mode == "3. Bản đồ Tối ưu Vận chuyển":
